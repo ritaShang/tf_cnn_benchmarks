@@ -303,6 +303,7 @@ flags.DEFINE_string('tfprof_file', None,
                     'overhead is spent between steps. So, profiling results '
                     'are more accurate than the slowdown would suggest.' %
                     (_NUM_STEPS_TO_PROFILE, _NUM_OPS_TO_PRINT))
+flags.DEFINE_boolean('prof', 0, 'whether to prof')
 flags.DEFINE_string('graph_file', None,
                     'Write the model\'s graph definition to this file. '
                     'Defaults to binary format unless filename ends in "txt".')
@@ -1252,7 +1253,8 @@ def get_optimizer(params, learning_rate):
   return opt
 
 
-def generate_tfprof_profile(profiler, tfprof_file):
+def generate_tfprof_profile(profiler):
+#def generate_tfprof_profile(profiler, tfprof_file):
   """Generates a tfprof profile, writing it to a file and printing top ops.
 
   Args:
@@ -1260,15 +1262,29 @@ def generate_tfprof_profile(profiler, tfprof_file):
       called.
     tfprof_file: The filename to write the ProfileProto to.
   """
-  profile_proto = profiler.serialize_to_string()
-  log_fn('Dumping ProfileProto to %s' % tfprof_file)
-  with gfile.Open(tfprof_file, 'wb') as f:
-    f.write(profile_proto)
+  
+  log_fn('Logging profiled information ... ')
+
+  # profile_proto = profiler.serialize_to_string()
+  # log_fn('Dumping ProfileProto to %s' % tfprof_file)
+  # with gfile.Open(tfprof_file, 'wb') as f:
+  #   f.write(profile_proto)
 
   # Print out the execution times of the top operations. Note this
   # information can also be obtained with the dumped ProfileProto, but
   # printing it means tfprof doesn't have to be used if all the user wants
   # is the top ops.
+  
+  # parameter quantity
+  opts = tf.profiler.ProfileOptionBuilder.trainable_variables_parameter()
+  param_stats = profiler.profile_name_scope(options=opts)
+  print('总参数：', param_stats.total_parameters)
+
+  # Floats quantity
+  opts = tf.profiler.ProfileOptionBuilder.float_operation()
+  float_stats = profiler.profile_operations(opts)
+  print('总浮点运算数：', float_stats.total_float_ops)
+
   options = tf.profiler.ProfileOptionBuilder.time_and_memory()
   options['max_depth'] = _NUM_OPS_TO_PRINT
   options['order_by'] = 'accelerator_micros'
@@ -2267,7 +2283,8 @@ class BenchmarkCNN(object):
         summary_writer=summary_writer,
         local_init_run_options=init_run_options)
 
-    profiler = tf.profiler.Profiler() if self.params.tfprof_file else None
+    profiler = tf.profiler.Profiler() if self.params.prof else None
+    #profiler = tf.profiler.Profiler() if self.params.tfprof_file else None
     if self.graph_file is not None:
       path, filename = os.path.split(self.graph_file)
       as_text = filename.endswith('txt')
@@ -2300,8 +2317,9 @@ class BenchmarkCNN(object):
             'with traceback:\n' + traceback.format_exc())
 
     sv.stop()
-    if profiler:
-      generate_tfprof_profile(profiler, self.params.tfprof_file)
+    if profiler :
+      generate_tfprof_profile(profiler)
+      #generate_tfprof_profile(profiler, self.params.tfprof_file)
     return stats
 
   def benchmark_with_session(self, sess, supervisor, graph_info,
