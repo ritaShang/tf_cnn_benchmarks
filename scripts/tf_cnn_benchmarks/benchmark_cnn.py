@@ -289,8 +289,8 @@ flags.DEFINE_boolean('use_chrome_trace_format', True,
                      'If True, the trace_file, if specified, will be in a '
                      'Chrome trace format. If False, then it will be a '
                      'StepStats raw proto.')
-_NUM_STEPS_TO_PROFILE = 10
-_NUM_OPS_TO_PRINT = 20
+_NUM_STEPS_TO_PROFILE = 5
+_NUM_OPS_TO_PRINT = 10
 flags.DEFINE_string('tfprof_file', None,
                     'If specified, write a tfprof ProfileProto to this file. '
                     'The performance and other aspects of the model can then '
@@ -1277,11 +1277,13 @@ def generate_tfprof_profile(profiler):
   
   # parameter quantity
   opts = tf.profiler.ProfileOptionBuilder.trainable_variables_parameter()
+  opts['max_depth'] = 10
   param_stats = profiler.profile_name_scope(options=opts)
   print('总参数：', param_stats.total_parameters)
 
   # Floats quantity
   opts = tf.profiler.ProfileOptionBuilder.float_operation()
+  opts['max_depth'] = 10
   float_stats = profiler.profile_operations(opts)
   print('总浮点运算数：', float_stats.total_float_ops)
 
