@@ -714,6 +714,8 @@ class GlobalStepWatcher(threading.Thread):
                         (global_step_val, time.ctime()))
         self.finish_time = time.perf_counter()
         self.finish_step = global_step_val
+        tf.logging.info('Finishing real work at step %s at time %s' %
+                        (global_step_val, time.ctime()))
 
   def done(self):
     return self.finish_time > 0
@@ -894,6 +896,8 @@ def benchmark_one_step(sess,
           LOSS_AND_ACCURACY_DIGITS_TO_SHOW, results['top_1_accuracy'],
           LOSS_AND_ACCURACY_DIGITS_TO_SHOW, results['top_5_accuracy'])
     log_fn(log_str)
+
+
     if benchmark_logger:
       benchmark_logger.log_metric(
           'current_examples_per_sec', speed_mean, global_step=step + 1)
@@ -1277,13 +1281,13 @@ def generate_tfprof_profile(profiler):
   
   # parameter quantity
   opts = tf.profiler.ProfileOptionBuilder.trainable_variables_parameter()
-  opts['max_depth'] = 10
+  #opts['max_depth'] = 10
   param_stats = profiler.profile_name_scope(options=opts)
   print('总参数：', param_stats.total_parameters)
 
   # Floats quantity
   opts = tf.profiler.ProfileOptionBuilder.float_operation()
-  opts['max_depth'] = 10
+  #opts['max_depth'] = 10
   float_stats = profiler.profile_operations(opts)
   print('总浮点运算数：', float_stats.total_float_ops)
 
@@ -2832,6 +2836,7 @@ class BenchmarkCNN(object):
 
     with tf.device(self.global_step_device):
       global_step = tf.train.get_or_create_global_step()
+      #TODO: add global images
       self._maybe_initialize_fp16()
 
     # Build the processing and model for the worker.
