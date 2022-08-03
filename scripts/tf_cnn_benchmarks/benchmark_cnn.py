@@ -1281,7 +1281,7 @@ def generate_tfprof_profile(profiler):
   
   # parameter quantity
   opts = tf.profiler.ProfileOptionBuilder.trainable_variables_parameter()
-  #opts['max_depth'] = 10
+  opts['max_depth'] = 10
   param_stats = profiler.profile_name_scope(options=opts)
   print('总参数：', param_stats.total_parameters)
 
@@ -1792,8 +1792,11 @@ class BenchmarkCNN(object):
     log_fn('Dataset:     %s' % benchmark_info['dataset_name'])
     log_fn('Mode:        %s' % self.mode)
     log_fn('SingleSess:  %s' % benchmark_info['single_session'])
-    log_fn('Batch size:  %s global' % (self.batch_size * self.num_workers))
-    log_fn('             %s per device' % (self.batch_size //
+    log_fn('num_workers:  %s' % self.num_workers)
+    log_fn('raw_devices:  %s' % self.raw_devices)
+    log_fn('self.batch_size:  %s' % self.batch_size)
+    log_fn('Batch size:  %s global(self.batch_size * self.num_workers)' % (self.batch_size * self.num_workers))
+    log_fn('             %s per device(self.batch_size // len(self.raw_devices)' % (self.batch_size //
                                            len(self.raw_devices)))
     if self.batch_group_size > 1:
       log_fn('             %d batches per prepocessing group' %
