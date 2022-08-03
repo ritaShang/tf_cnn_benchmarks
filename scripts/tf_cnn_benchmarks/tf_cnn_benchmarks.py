@@ -62,6 +62,7 @@ def main(positional_arguments):
     bench = benchmark_cnn.BenchmarkCNN(params)
 
     tfversion = cnn_util.tensorflow_version_tuple()
+    log_fn('##################### Print basic information #####################')
     log_fn('TensorFlow:  %i.%i' % (tfversion[0], tfversion[1]))
 
     bench.print_info()
