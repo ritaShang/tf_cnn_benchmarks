@@ -714,8 +714,6 @@ class GlobalStepWatcher(threading.Thread):
                         (global_step_val, time.ctime()))
         self.finish_time = time.perf_counter()
         self.finish_step = global_step_val
-        tf.logging.info('Finishing real work at step %s at time %s' %
-                        (global_step_val, time.ctime()))
 
   def done(self):
     return self.finish_time > 0
@@ -1793,8 +1791,6 @@ class BenchmarkCNN(object):
     log_fn('Mode:        %s' % self.mode)
     log_fn('SingleSess:  %s' % benchmark_info['single_session'])
     log_fn('num_workers:  %s' % self.num_workers)
-    log_fn('raw_devices:  %s' % self.raw_devices)
-    log_fn('self.batch_size:  %s' % self.batch_size)
     log_fn('Batch size:  %s global(self.batch_size * self.num_workers)' % (self.batch_size * self.num_workers))
     log_fn('             %s per device(self.batch_size // len(self.raw_devices)' % (self.batch_size //
                                            len(self.raw_devices)))
@@ -2498,10 +2494,11 @@ class BenchmarkCNN(object):
         skip_final_eval = True
         break
     loop_end_time = time.perf_counter()
-    # Waits for the global step to be done, regardless of done_fn.
+    # [to judge if the training has done ]Waits for the global step to be done, regardless of done_fn.
     if global_step_watcher:
       while not global_step_watcher.done():
         time.sleep(.25)
+    # finish training
     if not global_step_watcher:
       elapsed_time = loop_end_time - loop_start_time
       average_wall_time = elapsed_time / local_step if local_step > 0 else 0
