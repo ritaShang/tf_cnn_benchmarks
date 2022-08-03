@@ -1803,7 +1803,7 @@ class BenchmarkCNN(object):
              self.batch_group_size)
     log_fn('Num batches: %d' % self.num_batches)
     log_fn('Num epochs:  %.2f' % self.num_epochs)
-    log_fn('Devices(benchmark_info.device_list):     %s' % benchmark_info['device_list'])
+    log_fn('Devices:     %s' % benchmark_info['device_list'])
     log_fn('NUMA bind:   %s' % self.params.use_numa_affinity)
     log_fn('Data format: %s' % self.params.data_format)
     if self.rewriter_config:
