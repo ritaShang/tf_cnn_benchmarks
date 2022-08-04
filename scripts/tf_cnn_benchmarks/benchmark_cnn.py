@@ -1279,7 +1279,7 @@ def generate_tfprof_profile(profiler):
   
   # parameter quantity
   opts = tf.profiler.ProfileOptionBuilder.trainable_variables_parameter()
-  opts['max_depth'] = 10
+  opts['max_depth'] = 20
   param_stats = profiler.profile_name_scope(options=opts)
   print('总参数：', param_stats.total_parameters)
 
