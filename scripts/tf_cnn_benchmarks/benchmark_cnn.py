@@ -1290,7 +1290,7 @@ def generate_tfprof_profile(profiler):
   print('总浮点运算数：', float_stats.total_float_ops)
 
   options = tf.profiler.ProfileOptionBuilder.time_and_memory()
-  options['max_depth'] = _NUM_OPS_TO_PRINT
+  options['max_depth'] = 20
   options['order_by'] = 'accelerator_micros'
   profiler.profile_operations(options)
 
@@ -2493,6 +2493,7 @@ class BenchmarkCNN(object):
         log_fn('Stopping, as the model indicates its custom goal was reached')
         skip_final_eval = True
         break
+    # while loop end
     loop_end_time = time.perf_counter()
     # [to judge if the training has done ]Waits for the global step to be done, regardless of done_fn.
     if global_step_watcher:
