@@ -865,8 +865,10 @@ def benchmark_one_step(sess,
   else:
     run_options = None
     run_metadata = None
+
   summary_str = None
   start_time = time.perf_counter()
+  # start to train for one step
   if summary_op is None:
     results = sess.run(fetches, options=run_options, run_metadata=run_metadata)
   else:
@@ -881,6 +883,9 @@ def benchmark_one_step(sess,
     image_producer.notify_image_consumption()
   train_time = time.perf_counter() - start_time
   step_train_times.append(train_time)
+  # train one step end
+  
+
   if (show_images_per_sec and step >= 0 and
       (step == 0 or (step + 1) % params.display_every == 0)):
     speed_mean, speed_uncertainty, speed_jitter = get_perf_timing(
@@ -2419,6 +2424,8 @@ class BenchmarkCNN(object):
     last_eval_step = local_step
     loop_start_time = time.perf_counter()
     last_average_loss = None
+    
+    ########!!!!!! main train loop #########
     while not done_fn():
       if local_step == 0:
         log_fn('Done warm up')
@@ -2494,6 +2501,8 @@ class BenchmarkCNN(object):
         skip_final_eval = True
         break
     # while loop end
+
+  
     loop_end_time = time.perf_counter()
     # [to judge if the training has done ]Waits for the global step to be done, regardless of done_fn.
     if global_step_watcher:

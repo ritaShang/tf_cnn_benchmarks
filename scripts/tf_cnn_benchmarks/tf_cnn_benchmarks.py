@@ -66,7 +66,8 @@ def main(positional_arguments):
     log_fn('TensorFlow:  %i.%i' % (tfversion[0], tfversion[1]))
 
     bench.print_info()
-    bench.run()
+    res = bench.run()
+    log_fn('run res:\n', res)
 
 
 if __name__ == '__main__':
