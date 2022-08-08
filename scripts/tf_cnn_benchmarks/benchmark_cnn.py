@@ -917,7 +917,7 @@ def benchmark_one_step(sess,
       trace_dir = os.path.dirname(trace_filename)
       if not gfile.Exists(trace_dir):
         gfile.MakeDirs(trace_dir)
-      with gfile.Open(step+trace_filename, 'w') as trace_file:
+      with gfile.Open(str(step)+trace_filename, 'w') as trace_file:
         if params.use_chrome_trace_format:
           trace = timeline.Timeline(step_stats=run_metadata.step_stats)
           trace_file.write(trace.generate_chrome_trace_format(show_memory=True))
