@@ -851,7 +851,7 @@ def benchmark_one_step(sess,
   should_profile = profiler and 0 <= step < _NUM_STEPS_TO_PROFILE
   need_options_and_metadata = (
       should_profile or collective_graph_key > 0 or
-      ((trace_filename or partitioned_graph_file_prefix) and (step == -2 or step == -5 or step == -9))
+      ((trace_filename or partitioned_graph_file_prefix) and (step == -2))
   )
   if need_options_and_metadata:
     run_options = tf.RunOptions()
@@ -912,7 +912,7 @@ def benchmark_one_step(sess,
   if need_options_and_metadata:
     if should_profile:
       profiler.add_step(step, run_metadata)
-    if trace_filename and (step == -2 or step == -5 or step == -9) and should_output_files:
+    if trace_filename and (step == -2) and should_output_files:
       log_fn('Dumping trace to %s' % trace_filename)
       trace_dir = os.path.dirname(trace_filename)
       if not gfile.Exists(trace_dir):
