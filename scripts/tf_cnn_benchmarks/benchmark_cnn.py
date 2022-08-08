@@ -289,7 +289,7 @@ flags.DEFINE_boolean('use_chrome_trace_format', True,
                      'If True, the trace_file, if specified, will be in a '
                      'Chrome trace format. If False, then it will be a '
                      'StepStats raw proto.')
-_NUM_STEPS_TO_PROFILE = 5
+_NUM_STEPS_TO_PROFILE = 10
 _NUM_OPS_TO_PRINT = 10
 flags.DEFINE_string('tfprof_file', None,
                     'If specified, write a tfprof ProfileProto to this file. '
@@ -684,8 +684,8 @@ class GlobalStepWatcher(threading.Thread):
   number of steps for the global run are done.
   """
 
-  def __init__(self, sess, global_step_op, start_at_global_step,
-               end_at_global_step):
+  def __init__(self, sess, global_step_op, start_at_global_step,end_at_global_step):
+
     threading.Thread.__init__(self)
     self.sess = sess
     self.global_step_op = global_step_op
@@ -851,7 +851,7 @@ def benchmark_one_step(sess,
   should_profile = profiler and 0 <= step < _NUM_STEPS_TO_PROFILE
   need_options_and_metadata = (
       should_profile or collective_graph_key > 0 or
-      ((trace_filename or partitioned_graph_file_prefix) and step == -2)
+      ((trace_filename or partitioned_graph_file_prefix) and (step == -2 or step == -5 or step == -9))
   )
   if need_options_and_metadata:
     run_options = tf.RunOptions()
@@ -912,12 +912,12 @@ def benchmark_one_step(sess,
   if need_options_and_metadata:
     if should_profile:
       profiler.add_step(step, run_metadata)
-    if trace_filename and step == -2 and should_output_files:
+    if trace_filename and (step == -2 or step == -5 or step == -9) and should_output_files:
       log_fn('Dumping trace to %s' % trace_filename)
       trace_dir = os.path.dirname(trace_filename)
       if not gfile.Exists(trace_dir):
         gfile.MakeDirs(trace_dir)
-      with gfile.Open(trace_filename, 'w') as trace_file:
+      with gfile.Open(step+trace_filename, 'w') as trace_file:
         if params.use_chrome_trace_format:
           trace = timeline.Timeline(step_stats=run_metadata.step_stats)
           trace_file.write(trace.generate_chrome_trace_format(show_memory=True))
@@ -2376,8 +2376,7 @@ class BenchmarkCNN(object):
       # TODO(zhengxq): Do we need to use a global step watcher at all?
       global_step_watcher = GlobalStepWatcher(
           sess, graph_info.global_step,
-          self.num_workers * self.num_warmup_batches +
-          self.init_global_step,
+          self.num_workers * self.num_warmup_batches + self.init_global_step,
           self.num_workers * (self.num_warmup_batches + self.num_batches) - 1)
       global_step_watcher.start()
     else:

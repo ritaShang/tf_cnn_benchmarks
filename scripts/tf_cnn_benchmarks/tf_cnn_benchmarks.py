@@ -67,7 +67,7 @@ def main(positional_arguments):
 
     bench.print_info()
     res = bench.run()
-    log_fn('run res:\n', res)
+    log_fn('run res:%s\n' % (res))
 
 
 if __name__ == '__main__':
